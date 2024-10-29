@@ -1,16 +1,24 @@
-<form method="{{ property('method') }}"{% if (property('multipart')) %} enctype="multipart/form-data"{% endif %}>
-  <ion-list>
-    <ion-item>
-      {{ component('formElements') }}
-    </ion-item>
-    <ion-item>
-      <ion-button variant="primary" type="submit" large expand="block">Submit</ion-button>
-    </ion-item>
-  </ion-list>
-</form>
-<apie-script>
+<apie-form-definition id="definition123456">
+  {{ component('formElements') }}
+</apie-form-definition>
+<apie-ionic-form debug-mode
+{% set requiresInitialization = property('value') is not empty or property('validationErrors') is not empty %}
+{% if requiresInitialization %}        class="unhandled-form"{% endif %}
+        definition-id="definition123456"
+        method="{{ property('method') }}"
+        csrf-token="{{ property('csrf') }}"
+        {% if (property('multipart')) %} supports-multipart{% endif %}>
+</apie-ionic-form>
+<script>
+{% if requiresInitialization %}
 (function (elm) {
-  elm.classList.remove('unhandled-form-group');
-  elm.value = {{ property('value') | json_encode | raw}};
-}(document.querySelector('apie-form-group.unhandled-form-group')));
-</apie-script>
+  elm.classList.remove('unhandled-form');
+  {% if property('value') is not empty %}
+  elm.value = {{ property('value') | safe_json_encode }};
+  {% endif %}
+  {% if property('validationErrors') is not empty %}
+  elm.validationErrors = {{ property('validationErrors') | safe_json_encode }};
+  {% endif %}
+}(document.querySelector('apie-ionic-form.unhandled-form')));
+</script>
+{% endif %}
